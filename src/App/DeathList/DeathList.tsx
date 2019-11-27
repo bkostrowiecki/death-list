@@ -5,7 +5,7 @@ export class DeathList extends React.Component<{}, DeathListState> {
     super(props);
 
     this.state = {
-      personName: '',
+      personName: "",
       people: []
     };
 
@@ -23,11 +23,8 @@ export class DeathList extends React.Component<{}, DeathListState> {
     event.preventDefault();
 
     this.setState({
-      people: [
-        this.state.personName,
-        ...this.state.people
-      ],
-      personName: ''
+      people: [this.state.personName, ...this.state.people],
+      personName: ""
     });
   }
 
@@ -42,24 +39,45 @@ export class DeathList extends React.Component<{}, DeathListState> {
   }
 
   render() {
-    return <>
-    <form className="form-group" onSubmit={this.onAddPersonSubmit}>
-      <label className="form-label" htmlFor="personName">Person name</label>
-      <div className="input-group">
-        <input className="form-control" type="text" id="personName" value={this.state.personName} onChange={this.onPersonNameChange} />
-        <div className="input-group-append">
-          <button className="btn btn-outline-secondary" type="submit">Add person</button>
-        </div>
-      </div>
-    </form>
-    {this.renderList()}
-    </>;
+    return (
+      <>
+        <form className="form-group" onSubmit={this.onAddPersonSubmit}>
+          <label className="form-label" htmlFor="personName">
+            Person name
+          </label>
+          <div className="input-group">
+            <input
+              className="form-control"
+              type="text"
+              id="personName"
+              value={this.state.personName}
+              onChange={this.onPersonNameChange}
+            />
+            <div className="input-group-append">
+              <button className="btn btn-outline-secondary" type="submit">
+                Add person
+              </button>
+            </div>
+          </div>
+        </form>
+        {this.renderList()}
+      </>
+    );
   }
 
   private renderList() {
-    return <ul className="list-group list-group-flush">
-      {this.state.people.map((item, index) => <li className="list-group-item" key={index}>{item} <button type="button" onClick={this.onDeletePersonClick(index)}>Delete</button></li>)}
-    </ul>;
+    return (
+      <ul className="list-group list-group-flush">
+        {this.state.people.map((item, index) => (
+          <li className="list-group-item" key={index}>
+            {item}{" "}
+            <button type="button" onClick={this.onDeletePersonClick(index)}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
   }
 }
 
