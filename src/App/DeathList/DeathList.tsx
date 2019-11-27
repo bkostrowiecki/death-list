@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, ChangeEvent } from "react";
+import React, { ChangeEvent } from "react";
 
 export class DeathList extends React.Component<{}, DeathListState> {
   constructor(props: {}) {
@@ -7,14 +7,16 @@ export class DeathList extends React.Component<{}, DeathListState> {
     this.state = {
       personName: ''
     };
+
+    this.onPersonNameChange = this.onPersonNameChange.bind(this);
   }
 
   onPersonNameChange(event: ChangeEvent<HTMLInputElement>) {
     this.setState({
       personName: event.target.value
+    }, () => {
+      console.log(this.state.personName);
     });
-
-    console.log(this.state.personName);
   }
 
   render() {
