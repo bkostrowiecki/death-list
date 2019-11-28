@@ -1,12 +1,18 @@
 import React, { ChangeEvent, FormEvent } from "react";
+import { NameField } from "./NameField";
+import { Link } from "react-router-dom";
+import { connect } from 'react-redux';
+import { State } from "../state";
+import { ActionType } from "./deathList.action";
+import { DeathListItem } from "./deathList.state";
+import { Dispatch } from "redux";
 
-export class DeathList extends React.Component<{}, DeathListState> {
-  constructor(props: {}) {
+export class DeathList extends React.Component<DeathListProps, DeathListState> {
+  constructor(props: DeathListProps) {
     super(props);
 
     this.state = {
       personName: "",
-      people: []
     };
 
     this.onPersonNameChange = this.onPersonNameChange.bind(this);
@@ -22,20 +28,15 @@ export class DeathList extends React.Component<{}, DeathListState> {
   onAddPersonSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    this.props.addPerson(this.state.personName);
+
     this.setState({
-      people: [this.state.personName, ...this.state.people],
-      personName: ""
-    });
+      personName: ''
+    })
   }
 
-  onDeletePersonClick(indexToDelete: number) {
-    return () => {
-      this.setState({
-        people: [
-          ...this.state.people.filter((_item, index) => index !== indexToDelete)
-        ]
-      });
-    };
+  onDeletePersonClick(id: string) {
+    return () => this.props.deletePerson(id);
   }
 
   render() {
@@ -46,21 +47,21 @@ export class DeathList extends React.Component<{}, DeathListState> {
             Person name
           </label>
           <div className="input-group">
-            <input
-              className="form-control"
-              type="text"
-              id="personName"
-              value={this.state.personName}
-              onChange={this.onPersonNameChange}
+            <NameField
+              inputValue={this.state.personName}
+              onInputValueChange={this.onPersonNameChange}
             />
             <div className="input-group-append">
-              <button className="btn btn-outline-secondary" type="submit">
+              <button className="btn btn-primary" type="submit" disabled={!this.state.personName}>
                 Add person
               </button>
             </div>
           </div>
         </form>
         {this.renderList()}
+        <div className="pt-5">
+          <Link to="/about">About</Link>
+        </div>
       </>
     );
   }
@@ -68,12 +69,15 @@ export class DeathList extends React.Component<{}, DeathListState> {
   private renderList() {
     return (
       <ul className="list-group list-group-flush">
-        {this.state.people.map((item, index) => (
-          <li className="list-group-item" key={index}>
-            {item}{" "}
-            <button type="button" onClick={this.onDeletePersonClick(index)}>
-              Delete
-            </button>
+        {this.props.people.map((item) => (
+          <li className="list-group-item" key={item.id}>
+            <span style={{ textDecoration: item.isDead ? 'line-through' : ''}}>{item.name}</span>{' '}
+            <div className="float-right">
+              {!item.isDead && <button type="button" className="btn btn-sm btn-success" onClick={() => this.props.killPerson(item.id)}>Kill</button>}
+              {!!item.isDead && <button type="button" className="btn btn-sm btn-success" onClick={() => this.props.revivePerson(item.id)}>Revive</button>}
+              {' '}
+              <button type="button" className="btn btn-sm btn-danger" onClick={this.onDeletePersonClick(item.id)}>Delete</button>
+            </div>
           </li>
         ))}
       </ul>
@@ -81,7 +85,47 @@ export class DeathList extends React.Component<{}, DeathListState> {
   }
 }
 
+const mapStateToProps = (state: State) => ({
+  people: Object.values(state.deathList)
+});
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  addPerson: (name: string) => dispatch({
+    type: ActionType.ADD_PERSON,
+    payload: {
+      name
+    }
+  }),
+  deletePerson: (id: string) => dispatch({
+    type: ActionType.DELETE_PERSON,
+    payload: {
+      id
+    }
+  }),
+  killPerson: (id: string) => dispatch({
+    type: ActionType.KILL_PERSON,
+    payload: {
+      id
+    }
+  }),
+  revivePerson: (id: string) => dispatch({
+    type: ActionType.REVIVE_PERSON,
+    payload: {
+      id
+    }
+  })
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(DeathList);
+
+export interface DeathListProps {
+  people: DeathListItem[];
+  addPerson: (name: string) => void;
+  deletePerson: (id: string) => void;
+  killPerson: (id: string) => void;
+  revivePerson: (id: string) => void;
+}
+
 interface DeathListState {
   personName: string;
-  people: string[];
 }
